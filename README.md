@@ -4,480 +4,415 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-2026.03.01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Room](https://img.shields.io/badge/Room-2.8.4-1976D2)
-![License](https://img.shields.io/badge/License-TBD-lightgrey)
+![Status](https://img.shields.io/badge/Status-Active%20Development-2EA44F)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-PomoTodo is an Android productivity app that combines a Pomodoro focus timer with a local Todo planner. It is built with Jetpack Compose, Room, Navigation 3, and Android system notifications.
+**PomoTodo**는 뽀모도로 타이머와 할 일 목록을 한 화면에서 함께 다루는 Android 생산성 앱입니다.  
+집중 시간을 정하고, 할 일을 기록하고, 타이머 진행 상태를 알림창에서 확인할 수 있도록 Jetpack Compose와 Room 기반으로 구현했습니다.
 
-The app is intentionally local-first. Todo data is stored on-device with Room, timer state is managed inside the app process, and focus progress is shown through Android notifications while a timer is running.
+[English README](README.en.md)
 
-> Current status: active local development. The release build is installable for testing, but Play Store publishing still requires production signing, final package naming, policy declarations, and store assets.
+> 현재 상태: 로컬 개발 및 테스트용 릴리즈 APK 설치가 가능한 단계입니다. Play Store 출시 전에는 프로덕션 서명키, 패키지명, 개인정보 처리방침, 스토어 등록 이미지, 정책 선언을 최종 확정해야 합니다.
 
-## Table of Contents
+## 목차
 
-- [Highlights](#highlights)
-- [Screens](#screens)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [Build and Install](#build-and-install)
-- [Testing](#testing)
-- [Release Notes for Play Store](#release-notes-for-play-store)
-- [Data and Privacy](#data-and-privacy)
-- [Open Source Licenses](#open-source-licenses)
-- [Roadmap](#roadmap)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+- [프로젝트 소개](#프로젝트-소개)
+- [핵심 기능](#핵심-기능)
+- [화면 구성](#화면-구성)
+- [기술 스택](#기술-스택)
+- [프로젝트 구조](#프로젝트-구조)
+- [아키텍처](#아키텍처)
+- [빠른 시작](#빠른-시작)
+- [빌드](#빌드)
+- [기기 설치](#기기-설치)
+- [테스트](#테스트)
+- [Play Store 출시 준비](#play-store-출시-준비)
+- [데이터와 개인정보](#데이터와-개인정보)
+- [오픈소스 라이선스](#오픈소스-라이선스)
+- [문제 해결](#문제-해결)
+- [로드맵](#로드맵)
+- [기여](#기여)
 
-## Highlights
+## 프로젝트 소개
 
-- **25-minute and 50-minute focus presets** for short and long deep-work sessions.
-- **Todo list integration** so a focus session can be connected to a specific task.
-- **Room local persistence** for todos and completed Pomodoro counts.
-- **Ongoing progress notification** while a timer is running.
-- **Completion notification** when a focus session ends.
-- **Splash screen** using AndroidX SplashScreen.
-- **Info page** with program name, version, developer, package, and open-source license details.
-- **No navigation animation** between pages, so text does not shift, shrink, or visually collapse during screen changes.
+PomoTodo는 다음 두 가지 흐름을 자연스럽게 연결하는 앱입니다.
 
-## Screens
+1. 오늘 처리할 일을 적는다.
+2. 25분 또는 50분 집중 타이머를 실행한다.
+3. 타이머가 끝나면 완료 알림을 받고, 할 일 진행 상태를 이어간다.
 
-Screenshots are not committed yet. Recommended Play Store and README captures:
+이 프로젝트는 Android CLI 환경에서 만들고 테스트하기 좋은 형태를 목표로 합니다.  
+UI는 Jetpack Compose로 구성하고, 할 일 데이터는 Room으로 로컬 저장하며, 타이머 상태 변화는 ViewModel과 타이머 컨트롤러가 명확히 나누어 관리합니다.
 
-| Main Timer | Todo Planning | Info | Open Source Licenses |
-| --- | --- | --- | --- |
-| 25/50 min focus timer | Local todo list | App and developer info | Runtime dependency licenses |
-
-Suggested screenshot paths if added later:
+특히 다음과 같은 테스트 시나리오에 잘 맞습니다.
 
 ```text
-docs/screenshots/main-timer.png
-docs/screenshots/todo-list.png
-docs/screenshots/about.png
-docs/screenshots/licenses.png
+25분 타이머를 시작한다.
+25분이 지나면 타이머가 멈춘다.
+완료 상태가 화면에 표시된다.
+완료 알림이 알림창에 뜬다.
 ```
 
-## Features
+## 핵심 기능
 
-### Timer
+### 뽀모도로 타이머
 
-- 25-minute Pomodoro preset.
-- 50-minute long focus preset.
-- Start, pause, and reset controls.
-- Circular Compose timer dial.
-- Timer status labels:
+- 25분 집중 타이머
+- 50분 긴 집중 타이머
+- 시작, 일시정지, 초기화
+- 원형 진행률 UI
+- 남은 시간 표시
+- 상태별 라벨 표시
   - `대기`
   - `진행 중`
   - `일시정지`
   - `완료`
-- Timer progress notification with remaining time and progress bar.
-- Focus completion notification.
+- 타이머 진행 중 알림창 진행 표시
+- 집중 시간이 끝났을 때 완료 알림 표시
 
-### Todo
+### 할 일 목록
 
-- Add todos.
-- Toggle completion state.
-- Delete todos.
-- Select one todo as the active focus target.
-- Record completed focus sessions against the selected todo.
-- Persist todos locally with Room.
+- 할 일 추가
+- 할 일 완료/미완료 전환
+- 완료된 할 일 삭제
+- Room 기반 로컬 저장
+- 앱을 종료해도 할 일 유지
 
-### App Info
+### 앱 경험
 
-- Program name.
-- Version name and version code.
-- Package name.
-- Developer name.
-- Contact placeholder.
-- Open-source license page.
+- AndroidX SplashScreen 기반 스플래시 스크린
+- 앱 정보 페이지
+- 오픈소스 라이선스 페이지
+- 버전명과 버전코드 표시
+- 개발자 정보 표시
+- 화면 전환 시 텍스트가 움직이지 않도록 전환 애니메이션 제거
+- 뒤로가기로 화면을 닫아도 타이머 알림 상태가 쉽게 끊기지 않도록 태스크를 백그라운드로 이동
 
-### Navigation
+## 화면 구성
 
-- Navigation 3 back stack.
-- Main, About, and Open Source Licenses destinations.
-- Transitions are intentionally disabled:
-  - no slide,
-  - no scale,
-  - no text movement,
-  - instant page replacement.
+아직 스크린샷 파일은 커밋하지 않았습니다. 이후 README와 Play Store 등록에 사용할 스크린샷은 아래 경로를 권장합니다.
 
-## Tech Stack
+| 화면 | 설명 | 권장 파일 |
+| --- | --- | --- |
+| 메인 타이머 | 25분/50분 타이머와 진행률 | `docs/screenshots/main-timer.png` |
+| 할 일 목록 | 로컬 Todo 추가/완료 | `docs/screenshots/todo-list.png` |
+| 정보 페이지 | 앱 이름, 버전, 개발자 정보 | `docs/screenshots/about.png` |
+| 라이선스 | 오픈소스 라이브러리 정보 | `docs/screenshots/licenses.png` |
 
-| Area | Technology |
+## 기술 스택
+
+| 영역 | 사용 기술 |
 | --- | --- |
-| Language | Kotlin 2.3.20 |
+| Language | Kotlin |
 | UI | Jetpack Compose, Material 3 |
+| Architecture | ViewModel, StateFlow, Repository |
 | Navigation | AndroidX Navigation 3 |
-| Persistence | Room |
-| Async | Kotlin Coroutines, StateFlow |
-| App lifecycle | AndroidX Activity, Lifecycle |
-| Notifications | Android notification channels and NotificationCompat |
-| Splash | AndroidX Core SplashScreen |
-| Tests | JUnit, kotlinx-coroutines-test, AndroidX Compose UI Test |
-| Build | Gradle, Android Gradle Plugin 9.0.1 |
+| Database | Room |
+| Async | Kotlin Coroutines, Flow |
+| Notifications | Android notification APIs |
+| Splash | AndroidX SplashScreen |
+| Build | Gradle Kotlin DSL |
+| Test | JUnit, AndroidX Test, Compose UI Test |
 
-## Project Structure
+## 프로젝트 구조
 
 ```text
 PomoTodo/
-├─ app/
-│  ├─ build.gradle.kts
-│  └─ src/
-│     ├─ main/
-│     │  ├─ AndroidManifest.xml
-│     │  ├─ java/com/example/pomotodo/
-│     │  │  ├─ MainActivity.kt
-│     │  │  ├─ PomoTodoApplication.kt
-│     │  │  ├─ Navigation.kt
-│     │  │  ├─ NavigationKeys.kt
-│     │  │  ├─ data/
-│     │  │  ├─ notifications/
-│     │  │  ├─ theme/
-│     │  │  └─ ui/
-│     │  │     ├─ about/
-│     │  │     └─ main/
-│     │  └─ res/
-│     ├─ test/
-│     └─ androidTest/
-├─ docs/
-│  └─ play-store-release-checklist.md
-├─ gradle/
-│  └─ libs.versions.toml
-├─ build.gradle.kts
-├─ settings.gradle.kts
-└─ README.md
+├── app/
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── androidTest/
+│       │   └── java/com/example/pomotodo/ui/main/
+│       │       └── MainScreenTest.kt
+│       ├── main/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/com/example/pomotodo/
+│       │   │   ├── MainActivity.kt
+│       │   │   ├── Navigation.kt
+│       │   │   ├── NavigationKeys.kt
+│       │   │   ├── PomoTodoApplication.kt
+│       │   │   ├── data/
+│       │   │   ├── notifications/
+│       │   │   ├── theme/
+│       │   │   └── ui/
+│       │   │       ├── about/
+│       │   │       └── main/
+│       │   └── res/
+│       └── test/
+│           └── java/com/example/pomotodo/ui/main/
+│               └── MainScreenViewModelTest.kt
+├── docs/
+│   └── play-store-release-checklist.md
+├── gradle/
+│   ├── libs.versions.toml
+│   └── wrapper/
+├── README.md
+├── README.en.md
+└── settings.gradle.kts
 ```
 
-## Architecture
-
-PomoTodo follows a small, pragmatic Android architecture:
+## 아키텍처
 
 ```mermaid
 flowchart TD
-    UI["Compose UI"] --> VM["MainScreenViewModel"]
-    UI --> NAV["Navigation 3"]
-    VM --> TIMER["PomodoroTimerController"]
-    VM --> REPO["PomoTodoRepository"]
-    TIMER --> NOTIFIER["PomodoroNotifier"]
-    TIMER --> REPO
-    REPO --> ROOM["Room Database"]
-    NOTIFIER --> ANDROID["Android Notifications"]
+    UI["Compose UI"]
+    VM["MainScreenViewModel"]
+    Timer["PomodoroTimerController"]
+    Repo["DataRepository"]
+    DB["Room Database"]
+    Notifier["PomodoroNotifier"]
+    AndroidNotifier["AndroidPomodoroNotifier"]
+    SystemNotification["Android Notifications"]
+
+    UI --> VM
+    VM --> Timer
+    VM --> Repo
+    Repo --> DB
+    VM --> Notifier
+    Notifier --> AndroidNotifier
+    AndroidNotifier --> SystemNotification
 ```
 
-### UI Layer
+### 상태 관리 흐름
 
-- `MainScreen.kt`
-  - Timer UI
-  - Todo input/list
-  - Info button
-  - Completion dialog
-- `AboutScreen.kt`
-  - App metadata
-  - Developer info
-  - Open-source licenses
-- `Navigation.kt`
-  - Main screen
-  - About screen
-  - Open Source Licenses screen
-  - Disabled page transition animation
+타이머는 `대기`, `진행 중`, `일시정지`, `완료` 상태를 기준으로 UI와 알림을 갱신합니다.
 
-### State and Timer Layer
-
-- `MainScreenViewModel.kt`
-  - Exposes `MainScreenUiState`
-  - Handles todo actions
-  - Delegates timer actions
-- `PomodoroTimerController.kt`
-  - Owns timer state
-  - Starts, pauses, resets, and completes the timer
-  - Updates progress notifications
-  - Records completed sessions
-
-Timer state is held outside the Composable screen so the running timer and notification are not tied to screen composition disposal.
-
-### Data Layer
-
-- `TodoEntity.kt`
-- `TodoDao.kt`
-- `PomoTodoDatabase.kt`
-- `DataRepository.kt`
-
-Room is used for local persistence. There is no server sync in the current implementation.
-
-### Notification Layer
-
-- `PomodoroNotifier.kt`
-- `AndroidPomodoroNotifier.kt`
-
-Notifications are split behind an interface so timer logic can be tested without depending directly on Android notification APIs.
-
-## Getting Started
-
-### Requirements
-
-- Windows, macOS, or Linux
-- JDK 17
-- Android SDK
-- Android device or emulator
-- Gradle wrapper included in this repository
-
-Current Android config:
-
-```text
-minSdk     24
-targetSdk  36
-compileSdk 36
-version    1.0 (1)
-package    com.example.pomotodo
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Running: start
+    Running --> Paused: pause
+    Paused --> Running: resume
+    Running --> Completed: time up
+    Paused --> Idle: reset
+    Completed --> Idle: reset
 ```
 
-### Clone
+## 빠른 시작
 
-```bash
-git clone <repository-url>
+### 요구 사항
+
+- Android Studio 또는 Android SDK
+- JDK 17 이상
+- Gradle Wrapper 사용 가능 환경
+- Android 7.0(API 24) 이상 기기 또는 에뮬레이터
+
+### 저장소 클론
+
+```powershell
+git clone https://github.com/kjw2/PomoTodo.git
 cd PomoTodo
 ```
 
-### Open in Android Studio
-
-Open the repository root and let Gradle sync. The project uses Kotlin DSL and a version catalog in `gradle/libs.versions.toml`.
-
-## Build and Install
-
-### Run Unit Tests
+### 의존성 확인
 
 ```powershell
-.\gradlew.bat testDebugUnitTest
+.\gradlew.bat projects
 ```
 
-### Build Debug APK
+macOS 또는 Linux에서는 다음 명령을 사용합니다.
+
+```bash
+./gradlew projects
+```
+
+## 빌드
+
+### Debug 빌드
 
 ```powershell
 .\gradlew.bat assembleDebug
 ```
 
-### Build Release APK
+### Release 빌드
 
 ```powershell
 .\gradlew.bat assembleRelease
 ```
 
-Release APK output:
+생성되는 APK 경로는 다음과 같습니다.
 
 ```text
+app/build/outputs/apk/debug/app-debug.apk
 app/build/outputs/apk/release/app-release.apk
 ```
 
-### Build Android Test APK
+> 현재 릴리즈 빌드는 로컬 테스트 편의를 위해 debug signing을 사용할 수 있습니다. Play Store 배포 전에는 반드시 별도의 프로덕션 키스토어와 signing config를 구성해야 합니다.
+
+## 기기 설치
+
+### 연결된 기기 확인
 
 ```powershell
-.\gradlew.bat assembleDebugAndroidTest
+adb devices
 ```
 
-### Install on a Connected Device
+### Debug APK 설치
 
 ```powershell
-& "$env:ANDROID_HOME\platform-tools\adb.exe" devices -l
-& "$env:ANDROID_HOME\platform-tools\adb.exe" install --user 0 -r "app/build/outputs/apk/release/app-release.apk"
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-If `ANDROID_HOME` is not configured, use the direct SDK path. On the current development machine the SDK is under:
-
-```text
-F:\Android\Sdk
-```
-
-### Wireless Debugging Notes
-
-When using Samsung Dual App / Secure Folder profiles, installing without `--user 0` can cause duplicate launcher icons. Prefer:
+### Release APK 설치
 
 ```powershell
-adb install --user 0 -r app-release.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-To inspect package visibility by user:
+### 무선 디버깅 기기에 설치
+
+기기가 이미 무선 디버깅으로 연결되어 있다면 시리얼을 지정해 설치할 수 있습니다.
 
 ```powershell
-adb shell pm list users
-adb shell pm list packages --user 0 | Select-String -Pattern "com.example.pomotodo"
-adb shell pm list packages --user 95 | Select-String -Pattern "com.example.pomotodo"
+adb -s <device-serial> install --user 0 -r app/build/outputs/apk/release/app-release.apk
 ```
 
-## Testing
+Samsung 기기에서 앱 아이콘이 두 개 보이는 경우, 보안 폴더나 듀얼 앱 사용자 영역에 같은 패키지가 설치되어 있을 수 있습니다. 일반 사용자 영역에만 설치하려면 `--user 0` 옵션을 사용합니다.
 
-### Local Unit Tests
+## 테스트
 
-The main timer behavior is covered with local unit tests:
-
-- initial timer state
-- pause behavior
-- reset behavior
-- 50-minute preset selection
-- completion after full duration
-- completed Pomodoro recording
-
-Run:
+### Unit Test
 
 ```powershell
 .\gradlew.bat testDebugUnitTest
 ```
 
-### Instrumented UI Test Build
-
-Compose UI test APK can be assembled with:
+### Instrumented Test
 
 ```powershell
-.\gradlew.bat assembleDebugAndroidTest
+.\gradlew.bat connectedDebugAndroidTest
 ```
 
-### Manual Device Test Checklist
-
-- App launches with splash screen.
-- Main screen shows `PomoTodo`, timer, presets, and todo input.
-- 25-minute timer starts.
-- Timer progress notification appears.
-- Back button moves app to background without removing notification.
-- Timer can be paused and reset.
-- 50-minute preset can be selected when timer is not running.
-- Todo can be added, selected, completed, and deleted.
-- Completion dialog appears when timer reaches zero.
-- Focus completion notification appears.
-- Info page opens from the top-right info icon.
-- Open-source license page opens from the Info page.
-- Page changes happen without text or page movement.
-
-## Release Notes for Play Store
-
-See the detailed checklist:
-
-[docs/play-store-release-checklist.md](docs/play-store-release-checklist.md)
-
-Before production release, the following items must be completed:
-
-- Choose a production `applicationId`.
-  - Current value is `com.example.pomotodo`.
-  - This should be changed before publishing.
-- Replace debug signing for release builds.
-  - Current release build uses debug signing for easy local installation.
-  - Play Store release requires a proper upload key.
-- Build an Android App Bundle:
+### 전체 확인에 자주 쓰는 명령
 
 ```powershell
-.\gradlew.bat bundleRelease
+.\gradlew.bat testDebugUnitTest assembleRelease
 ```
 
-- Prepare Play Store assets:
-  - app icon,
-  - screenshots,
-  - feature graphic,
-  - short description,
-  - full description,
-  - privacy policy URL,
-  - support email.
-- Complete Play Console declarations:
-  - Data safety,
-  - Content rating,
-  - Target audience,
-  - App access,
-  - Ads declaration,
-  - Privacy policy.
+### Android CLI Journey 예시
 
-## Data and Privacy
+이 앱은 자연어 기반 모바일 테스트 시나리오를 만들기 좋은 구조입니다.
 
-Current behavior:
+```text
+PomoTodo 앱을 실행한다.
+25분 타이머가 선택되어 있는지 확인한다.
+시작 버튼을 누른다.
+타이머 진행 알림이 알림창에 표시되는지 확인한다.
+25분이 지난 상태로 이동한다.
+타이머가 완료 상태로 멈췄는지 확인한다.
+완료 알림이 표시되는지 확인한다.
+```
 
-- Todos are stored locally on the device with Room.
-- No login is implemented.
-- No network sync is implemented.
-- No advertising SDK is included.
-- No analytics SDK is included.
-- Notifications are used for timer progress and timer completion.
+실제 25분을 기다리는 테스트보다, 타이머 컨트롤러의 시간 공급원을 테스트 가능하게 분리해 빠르게 검증하는 방식을 권장합니다.
 
-Privacy policy wording should match the actual release build. If future versions add analytics, cloud sync, crash reporting, or ads, Play Console Data safety answers must be updated.
+## Play Store 출시 준비
 
-## Open Source Licenses
+상세 체크리스트는 [docs/play-store-release-checklist.md](docs/play-store-release-checklist.md)에 정리되어 있습니다.
 
-The app includes an in-app open-source license page for the main runtime dependencies:
+출시 전 핵심 확인 사항은 다음과 같습니다.
 
-- AndroidX Core / Activity / Lifecycle
+- 패키지명 최종 확정
+- 앱 이름과 아이콘 최종 확정
+- `versionCode`, `versionName` 관리 정책 확정
+- 프로덕션 signing key 생성 및 보관
+- AAB 빌드 구성
+- 개인정보 처리방침 URL 준비
+- 데이터 보안 섹션 작성
+- 알림 권한 사용 목적 설명
+- 스크린샷, 피처 그래픽, 앱 설명 준비
+- 오픈소스 라이선스 고지 확인
+- 내부 테스트 트랙 업로드
+- 실제 기기에서 설치/실행/알림/저장소 동작 검증
+
+## 데이터와 개인정보
+
+PomoTodo는 현재 서버 연동 없이 로컬 우선 구조로 동작합니다.
+
+- 할 일 데이터는 기기 내부 Room 데이터베이스에 저장됩니다.
+- 타이머 상태는 앱 실행 중 상태로 관리됩니다.
+- 완료 알림과 진행 알림은 Android 시스템 알림으로 표시됩니다.
+- 현재 별도 로그인, 계정 연동, 외부 서버 전송 기능은 없습니다.
+
+Play Store에 등록할 때는 실제 앱 동작과 일치하는 개인정보 처리방침 및 데이터 보안 선언이 필요합니다.
+
+## 오픈소스 라이선스
+
+앱 내부에는 오픈소스 라이선스 페이지가 포함되어 있습니다. 현재 주요 의존성은 다음과 같습니다.
+
+- AndroidX Core / AppCompat 계열
 - Jetpack Compose
 - Material Icons Extended
 - AndroidX Navigation 3
 - Room
-- Kotlin / Kotlinx Coroutines
+- Kotlin
+- Kotlin Coroutines
 
-Most AndroidX and Kotlin dependencies are licensed under Apache License 2.0. Verify the final dependency tree before production release.
+라이선스 페이지는 앱의 정보 화면에서 접근할 수 있습니다.
 
-## Roadmap
+## 문제 해결
 
-Potential next steps:
+### 앱 아이콘이 두 개 보이는 경우
 
-- Production package name.
-- Proper release signing configuration.
-- Android App Bundle publishing pipeline.
-- Privacy policy page.
-- Store screenshots and feature graphic.
-- More precise open-source license generation from Gradle dependencies.
-- Timer persistence across process death.
-- Optional foreground service if long-running background timer guarantees are required.
-- More UI tests for Info and License pages.
-- Export/import local todo data.
-- Dark theme tuning.
-
-## Troubleshooting
-
-### Duplicate App Icons on Samsung Devices
-
-If two PomoTodo icons appear, the app may be installed for Samsung Dual App or another user profile.
-
-Check users:
+같은 패키지가 다른 Android 사용자 영역에 설치되어 있을 수 있습니다. 연결된 기기에서 사용자별 설치 상태를 확인합니다.
 
 ```powershell
 adb shell pm list users
+adb shell pm list packages --user 0 | findstr pomotodo
+adb shell pm list packages --user 95 | findstr pomotodo
 ```
 
-Remove from Dual App user if needed:
+일반 사용자 영역에만 설치할 때는 다음처럼 설치합니다.
 
 ```powershell
-adb shell pm uninstall --user 95 com.example.pomotodo
+adb install --user 0 -r app/build/outputs/apk/release/app-release.apk
 ```
 
-Install only for the main user:
+### 알림이 보이지 않는 경우
+
+Android 13 이상에서는 알림 권한이 필요합니다. 앱 정보 또는 시스템 설정에서 알림 권한을 허용했는지 확인합니다.
+
+### 화면 전환 시 글자가 움직이는 경우
+
+현재 Navigation 전환 애니메이션은 제거되어 있습니다. 다시 애니메이션을 추가할 경우 텍스트가 이동하거나 축소되어 보이지 않도록 전환 효과를 신중히 선택해야 합니다.
+
+### 빌드가 실패하는 경우
+
+Gradle 캐시나 Android SDK 설정을 확인합니다.
 
 ```powershell
-adb install --user 0 -r app-release.apk
+.\gradlew.bat --version
+.\gradlew.bat clean
+.\gradlew.bat assembleDebug
 ```
 
-### Notification Does Not Appear
+## 로드맵
 
-Check:
+- 실제 Play Store 배포용 signing config 분리
+- AAB 빌드 및 내부 테스트 트랙 배포
+- 장기 실행 타이머의 백그라운드 안정성 강화
+- 집중 기록 통계 화면
+- 일/주/월 단위 완료 기록
+- Todo 정렬 및 필터
+- 다크 모드 세부 조정
+- 스크린샷과 데모 이미지 추가
+- 라이선스 자동 수집 태스크 도입
 
-- Android notification permission is granted.
-- App notification channel is not blocked.
-- Timer is actually running.
-- Device is user 0 install, not a secondary profile.
+## 기여
 
-### Release Build Installs but Is Not Store-Ready
+현재는 초기 개발 단계입니다. 변경 전에는 다음 흐름을 권장합니다.
 
-The current release build is suitable for local testing, not Play Store production:
+```powershell
+.\gradlew.bat testDebugUnitTest
+.\gradlew.bat assembleDebug
+```
 
-- release signing currently uses debug signing,
-- `applicationId` is still `com.example.pomotodo`,
-- Play Store metadata and privacy policy are not final.
+Pull Request를 만들 때는 다음 내용을 함께 적어 주세요.
 
-## Contributing
+- 변경 목적
+- 주요 변경 파일
+- 테스트 결과
+- UI 변경이 있다면 스크린샷
 
-This is currently a single-app development workspace. Suggested contribution flow:
+## 라이선스
 
-1. Keep changes scoped.
-2. Run unit tests.
-3. Build release APK.
-4. Verify on device when UI, navigation, timer, notification, or Room behavior changes.
-5. Update this README and `docs/play-store-release-checklist.md` when release behavior changes.
-
-## License
-
-Project license has not been selected yet.
-
-Before publishing this repository publicly, add a root `LICENSE` file and update the badge at the top of this README.
+이 프로젝트는 [MIT License](LICENSE)를 따릅니다.
