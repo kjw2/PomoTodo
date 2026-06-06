@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#3A1D1C"
+        android:fillAlpha="0.22"
+        android:pathData="M32,83C43,92 66,95 79,85C88,78 89,66 83,58C75,48 61,50 53,55C45,50 31,48 24,59C19,67 23,77 32,83Z" />
+    <path
+        android:fillColor="#E9473F"
+        android:pathData="M54,27C37,27 23,41 23,58C23,76 37,89 54,89C71,89 85,76 85,58C85,41 71,27 54,27Z" />
+    <path
+        android:fillColor="#FF6B5F"
+        android:pathData="M38,33C29,39 25,48 26,59C27,47 37,37 50,34C46,32 42,32 38,33Z" />
+    <path
+        android:fillColor="#D93636"
+        android:pathData="M54,31C62,38 67,48 67,59C67,71 62,80 54,87C72,87 84,74 84,58C84,42 72,31 54,31Z" />
+    <path
+        android:fillColor="#77B255"
+        android:pathData="M54,30C52,23 47,18 39,17C39,25 44,31 52,34Z" />
+    <path
+        android:fillColor="#89C763"
+        android:pathData="M54,31C57,23 64,18 73,19C71,28 64,33 55,35Z" />
+    <path
+        android:fillColor="#4E8F43"
+        android:pathData="M49,29C51,25 55,22 60,21C59,27 56,32 52,36Z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M54,42C45,42 38,49 38,58C38,67 45,74 54,74C63,74 70,67 70,58C70,49 63,42 54,42Z"
+        android:strokeColor="#FFF4E5"
+        android:strokeLineCap="round"
+        android:strokeWidth="5" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M54,48L54,59L62,64"
+        android:strokeColor="#FFF4E5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="5" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M40,79L48,86L66,68"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="6" />
+</vector>
